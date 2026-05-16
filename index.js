@@ -7,7 +7,8 @@ const connectDB = require('./db');
 const dotenv = require('dotenv').config();
 
 //Declare routes
-
+const userRoutes = require('./routes/users');
+const blogsRoutes = require('./routes/blogs');
 
 
 //APP-------------------------------------------------------------------------------------------------------------------
@@ -25,9 +26,12 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 
-
+app.get('/', (req, res) => {
+    res.send('Welcome to the CodeQueen Alumni API');
+});
 //ROUTES---------------------------------------------------------------------------------------------------------------------
-
+app.use('/blogs', blogsRoutes);
+app.use('/users', userRoutes)
 
 
 //PORT CONNECTION------------------------------------------------------------------------------------------------------
