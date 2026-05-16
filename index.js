@@ -9,6 +9,7 @@ const dotenv = require('dotenv').config();
 //Declare routes
 const userRoutes = require('./routes/users');
 const blogsRoutes = require('./routes/blogs');
+const badgeRouters = require('./routes/badges');
 
 
 //APP-------------------------------------------------------------------------------------------------------------------
@@ -30,9 +31,10 @@ app.get('/', (req, res) => {
     res.send('Welcome to the CodeQueen Alumni API');
 });
 //ROUTES---------------------------------------------------------------------------------------------------------------------
-app.use('/blogs', blogsRoutes);
-app.use('/users', userRoutes)
 
+app.use('/users', userRoutes);
+app.use('/blogs', blogsRoutes);
+app.use('/badges', badgeRouters);
 
 //PORT CONNECTION------------------------------------------------------------------------------------------------------
 const PORT = process.env.PORT || 3000;
