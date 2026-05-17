@@ -8,9 +8,9 @@ const dotenv = require('dotenv').config();
 
 //Declare routes
 const userRoutes = require('./routes/users');
-const blogsRoutes = require('./routes/blogs');
 const badgeRouters = require('./routes/badges');
-const profileRoutes = require('./routes/profiles')
+const profileRoutes = require('./routes/profiles');
+const blogsRoutes = require('./routes/blogs');
 
 
 //APP-------------------------------------------------------------------------------------------------------------------
@@ -34,9 +34,9 @@ app.get('/', (req, res) => {
 //ROUTES---------------------------------------------------------------------------------------------------------------------
 
 app.use('/users', userRoutes);
-app.use('/blogs', blogsRoutes);
 app.use('/badges', badgeRouters);
 app.use('/profiles', profileRoutes);
+app.use('/blogs', blogsRoutes);
 
 //PORT CONNECTION------------------------------------------------------------------------------------------------------
 const PORT = process.env.PORT || 3000;
