@@ -49,14 +49,14 @@ const awardBadge = async (req, res) => {
 
         // Use $addToSet so she can't get the same badge twice
         const profile = await Profile.findOneAndUpdate(
-            { userId: alumnaId },
+            { alumnaID: alumnaId },
             { $addToSet: { badges: badgeId } },
             { new: true }
         );
-
-        res.status(200).json({ message: "Badge awarded!", result: profile });
+        
+        res.status(200).json({ message: "Badge has been awarded to alumna !", result: profile });
     } catch (error) {
-        res.status(500).json({ message: "Awarding failed", error: error.message });
+        res.status(500).json({ message: "Awarding badge failed", error: error.message });
     }
 };
 
