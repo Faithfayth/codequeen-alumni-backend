@@ -12,3 +12,6 @@ const profilesschema = mongoose.Schema({
 });
 
 module.exports = mongoose.model('Profiles', profilesschema);
+
+
+//only "alumna", "admin" role can create profile

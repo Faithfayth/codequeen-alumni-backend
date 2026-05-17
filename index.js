@@ -10,6 +10,7 @@ const dotenv = require('dotenv').config();
 const userRoutes = require('./routes/users');
 const blogsRoutes = require('./routes/blogs');
 const badgeRouters = require('./routes/badges');
+const profileRoutes = require('./routes/profiles')
 
 
 //APP-------------------------------------------------------------------------------------------------------------------
@@ -35,6 +36,7 @@ app.get('/', (req, res) => {
 app.use('/users', userRoutes);
 app.use('/blogs', blogsRoutes);
 app.use('/badges', badgeRouters);
+app.use('/profiles', profileRoutes);
 
 //PORT CONNECTION------------------------------------------------------------------------------------------------------
 const PORT = process.env.PORT || 3000;
