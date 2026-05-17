@@ -19,6 +19,12 @@ const createBlog = async (req, res) => {
         });
 
         await newBlog.save();
+        // Inside your createBlog controller after saving to MongoDB:
+        const io = req.app.get('io');
+        io.emit('new_blog_published', {
+        title: newBlog.title,
+        author: newBlog.authorname
+        });
         res.status(201).json({ message: "Blog post published successfully!", result: newBlog });
     } catch (error) {
         res.status(500).json({ message: "Failed to create blog post", error: error.message });
