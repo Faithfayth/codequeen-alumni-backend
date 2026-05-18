@@ -122,7 +122,7 @@ const deleteEvent = async (req, res) => {
 };
 
 
-const getUnverifiedEvents = async (req, res) => {
+const getUnverifiedEvents = async (req, res) => { //Only accessible to admin >>probably onclick function
     try {
         // Find all events where isVerified is explicitly false
         // Sorted with the oldest submissions first so admins can process them in order

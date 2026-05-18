@@ -7,7 +7,7 @@ const opportuniesschema = mongoose.Schema({
     url: { type: String, required: true },
     category: { type: String, required: true },
     deadline: { type: Date, required: true },
-    adminverified: { type: Boolean, required: true },
+    adminverified: { type: Boolean, default: false },
     addedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'Users', required: true },
 });
 

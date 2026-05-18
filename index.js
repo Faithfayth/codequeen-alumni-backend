@@ -19,6 +19,7 @@ const profileRoutes = require('./routes/profiles');
 const blogsRoutes = require('./routes/blogs');
 const generalMessages = require('./routes/generalmessages');
 const eventsRoutes = require('./routes/events');
+const opportunitiesRoutes = require('./routes/opportunities')
 
 
 //APP-------------------------------------------------------------------------------------------------------------------
@@ -65,6 +66,7 @@ app.use('/profiles', profileRoutes);
 app.use('/blogs', blogsRoutes);
 app.use('/generalmessages', generalMessages);
 app.use('/events', eventsRoutes);
+app.use('/opportunitiesroutes', opportunitiesRoutes);
 
 //PORT CONNECTION------------------------------------------------------------------------------------------------------
 const PORT = process.env.PORT || 3000;
