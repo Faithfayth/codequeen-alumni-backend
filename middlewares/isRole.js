@@ -34,5 +34,42 @@ const isAdmin = (req, res, next) => {
 
 
 
+const isAlumna = (req, res, next) => {
+    // Only Alumnae and Admins can create/edit profiles
+    if (req.user && (req.user.role === 'alumna' || req.user.isAdmin === true)) {
+        next();
+    } else {
+        res.status(403).json({ message: "Access Denied: Alumni status required." });
+    }
+};
 
-module.exports = { isAuth, isAdmin};
+
+const isPartner = (req, res, next) => {
+    // Only Alumnae and Admins can create/edit profiles
+    if (req.user && (req.user.role === 'partner' || req.user.isAdmin === true)) {
+        next();
+    } else {
+        res.status(403).json({ message: "Access Denied: Partner status required." });
+    }
+};
+
+
+
+
+const isStudent = (req, res, next) => {
+    // Only Alumnae and Admins can create/edit profiles
+    if (req.user && (req.user.role === 'student' || req.user.isAdmin === true)) {
+        next();
+    } else {
+        res.status(403).json({ message: "Access Denied: Student status required." });
+    }
+};
+
+
+
+
+
+
+
+
+module.exports = { isAuth, isAdmin, isAlumna, isPartner, isStudent };

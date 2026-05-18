@@ -7,16 +7,16 @@ const {createOpportunity,
        getUnverifiedOpportunities,
        deleteOpportunity } = require('../controllers/opportunities');
 
-const { isAlumna, isAuth1 } = require('../middlewares/isAlumna');
-const { isAuth, isAdmin } = require('../middlewares/isAdmin');
+const { isAuth, isAdmin, isAlumna, isPartner, isStudent } = require('../middlewares/isRole');
+
 
 const router = express.Router();
 
-router.post('/createopportunity', isAuth1, isAlumna, createOpportunity);
+router.post('/createopportunity', isAuth, isAlumna, createOpportunity);
 
-router.get('/getpcomingpportunities', isAuth1, isAlumna, getUpcomingOpportunities);
+router.get('/getpcomingpportunities', isAuth, isAlumna, getUpcomingOpportunities);
 
-router.get('/getpastopportunities', isAuth1, isAlumna, getPastOpportunities);
+router.get('/getpastopportunities', isAuth, isAlumna, getPastOpportunities);
 
 router.put('/verifyopportunity/:id', isAuth, isAdmin, verifyOpportunity);
 

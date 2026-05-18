@@ -1,15 +1,16 @@
 const mongoose = require('mongoose');
 
 const partnersschema = mongoose.Schema({
-    userID:   { type: mongoose.Schema.Types.ObjectId, ref: 'Users', required: true },
+    // Adding unique: true forces MongoDB to reject any duplicate profiles for the same account
+    userID: { type: mongoose.Schema.Types.ObjectId, ref: 'Users', required: true, unique: true },
     companyname: { type: String, required: true },
     location:    { type: String, required: true },
-    description: { type: String, required: true }, //they could enter here, their goal for the codequeen community.
+    description: { type: String, required: true },
     website: { type: String },
     logoUrl: { type: String },
     contact: { type: String, required: true },
     email: { type: String, required: true },
-    status: { type: String, enum: ['pending', 'approved', 'rejected'], required: true }, //pending, approved, rejected (this will be set by the admin after reviewing the partner's application)
+    status: { type: String, enum: ['pending', 'approved', 'rejected'], default: 'pending', required: true },
 });
 
 module.exports = mongoose.model('Partners', partnersschema);

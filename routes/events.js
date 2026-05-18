@@ -2,12 +2,11 @@ const express = require('express');
 
 const { createEvent, verifyEvent, getCurrentEvents, getPastEvents, registerForEvent, deleteEvent, getUnverifiedEvents} = require('../controllers/events')
 
-const { isAlumna, isAuth1 } = require('../middlewares/isAlumna');
-const { isAuth, isAdmin } = require('../middlewares/isAdmin');
+const { isAuth, isAdmin, isAlumna, isPartner, isStudent } = require('../middlewares/isRole');
 
 const router = express.Router();
 
-router.post('/createevent', isAuth1, isAlumna, createEvent);
+router.post('/createevent', isAuth, isAlumna, createEvent);
 
 router.put('/verifyevent/:id', isAuth,  isAdmin, verifyEvent);
 

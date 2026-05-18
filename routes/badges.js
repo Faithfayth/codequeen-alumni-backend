@@ -2,7 +2,7 @@ const express = require('express');
 
 const {createBadge, updateBadge, deleteBadge, awardBadge} = require('../controllers/badges');
 
-const {isAuth, isAdmin } = require('../middlewares/isAdmin');
+const { isAuth, isAdmin, isAlumna, isPartner, isStudent } = require('../middlewares/isRole');
 
 const router = express.Router();
 

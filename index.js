@@ -14,12 +14,13 @@ const dotenv = require('dotenv').config();
 
 //Declare routes
 const userRoutes = require('./routes/users');
-const badgeRouters = require('./routes/badges');
+const badgeRoutes = require('./routes/badges');
 const profileRoutes = require('./routes/profiles');
 const blogsRoutes = require('./routes/blogs');
 const generalMessages = require('./routes/generalmessages');
 const eventsRoutes = require('./routes/events');
-const opportunitiesRoutes = require('./routes/opportunities')
+const opportunitiesRoutes = require('./routes/opportunities');
+const partnersRoutes = require('./routes/partners');
 
 
 //APP-------------------------------------------------------------------------------------------------------------------
@@ -61,12 +62,13 @@ app.get('/', (req, res) => {
 //ROUTES---------------------------------------------------------------------------------------------------------------------
 
 app.use('/users', userRoutes);
-app.use('/badges', badgeRouters);
+app.use('/badges', badgeRoutes);
 app.use('/profiles', profileRoutes);
 app.use('/blogs', blogsRoutes);
 app.use('/generalmessages', generalMessages);
 app.use('/events', eventsRoutes);
-app.use('/opportunitiesroutes', opportunitiesRoutes);
+app.use('/opportunities', opportunitiesRoutes);
+app.use('/partners', partnersRoutes);
 
 //PORT CONNECTION------------------------------------------------------------------------------------------------------
 const PORT = process.env.PORT || 3000;
