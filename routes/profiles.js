@@ -2,17 +2,17 @@ const express = require('express');
 
 const {createProfile, getAllProfiles, updateProfile, deleteProfile} = require('../controllers/profiles');
 
-const{isAlumna, isAuth} = require('../middlewares/isAlumna')
+const{isAlumna, isAuth1} = require('../middlewares/isAlumna')
 
 const router = express.Router();
 
-router.post('/createprofile', isAuth, isAlumna, createProfile);
+router.post('/createprofile', isAuth1, isAlumna, createProfile);
 
-router.get('/getallprofiles',isAuth, isAlumna, getAllProfiles);
+router.get('/getallprofiles',isAuth1, isAlumna, getAllProfiles);
 
-router.put('/updateprofile/:id',isAuth, isAlumna, updateProfile);
+router.put('/updateprofile/:id',isAuth1, isAlumna, updateProfile);
 
-router.delete('/deleteprofile/:id',isAuth, isAlumna, deleteProfile);
+router.delete('/deleteprofile/:id',isAuth1, isAlumna, deleteProfile);
 
 
 

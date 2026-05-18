@@ -4,20 +4,20 @@ const express = require('express');
 
 const { createBlog, getAllBlogs, updateBlog, deleteBlog, addComment } = require('../controllers/blogs');
 
-const { isAlumna, isAuth } = require('../middlewares/isAlumna');
+const { isAlumna, isAuth1 } = require('../middlewares/isAlumna');
 const { isAdmin } = require('../middlewares/isAdmin')
 
 const router = express.Router();
 
-router.post('/createblog', isAuth, isAlumna, createBlog);
+router.post('/createblog', isAuth1, isAlumna, createBlog);
 
-router.get('/getallblogs', isAuth, isAlumna, getAllBlogs );
+router.get('/getallblogs', isAuth1, isAlumna, getAllBlogs );
 
-router.put('/updateblog/:id', isAuth, isAlumna, updateBlog );
+router.put('/updateblog/:id', isAuth1, isAlumna, updateBlog );
 
-router.delete('/deleteblog/:id', isAuth, isAlumna, deleteBlog);
+router.delete('/deleteblog/:id', isAuth1, isAlumna, deleteBlog);
 
-router.post('/addcomment/:id', isAuth, isAlumna, addComment);
+router.post('/addcomment/:id', isAuth1, isAlumna, addComment);
 
 
 

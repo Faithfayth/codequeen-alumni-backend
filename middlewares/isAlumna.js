@@ -3,7 +3,7 @@ const jwt = require('jsonwebtoken');
 
 const User = require('../models/users');
 
-const isAuth = async (req, res, next) => {
+const isAuth1 = async (req, res, next) => {
     try {
         const token = req.header('Authorization').replace('Bearer ', '');
         if(!token) {
@@ -36,5 +36,5 @@ const isAlumna = (req, res, next) => {
 };
 
 
-module.exports = { isAlumna, isAuth }; 
+module.exports = { isAlumna, isAuth1 }; 
 

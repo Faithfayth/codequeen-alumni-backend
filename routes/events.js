@@ -1,23 +1,27 @@
 const express = require('express');
 
-const { createEvent, verifyEvent, getCurrentEvents, getPastEvents, registerForEvent, deleteEvent} = require('../controllers/events')
+const { createEvent, verifyEvent, getCurrentEvents, getPastEvents, registerForEvent, deleteEvent, getUnverifiedEvents} = require('../controllers/events')
 
-const { isAlumna, isAuth } = require('../middlewares/isAlumna');
-const { isAdmin } = require('../middlewares/isAdmin');
+const { isAlumna, isAuth1 } = require('../middlewares/isAlumna');
+const { isAuth, isAdmin } = require('../middlewares/isAdmin');
 
 const router = express.Router();
 
-router.post('/createevent', isAuth, isAlumna, createEvent);
+router.post('/createevent', isAuth1, isAlumna, createEvent);
 
-router.post('/verifyevent/:id', isAuth, isAlumna, verifyEvent);
+router.put('/verifyevent/:id', isAuth,  isAdmin, verifyEvent);
 
-router.post('/getcurrentevents', isAuth, isAlumna, getCurrentEvents);
+router.get('/getcurrentevents', isAuth, isAlumna, getCurrentEvents);
 
-router.post('/getpastevents', isAuth, isAlumna, getPastEvents);
+router.get('/getpastevents', isAuth, isAlumna, getPastEvents);
 
-router.post('/registerforevent/:id', isAuth, isAlumna, registerForEvent);
+router.put('/registerforevent/:id', isAuth, isAlumna, registerForEvent);
 
-router.post('/deleteevent/:id', isAuth, isAlumna, deleteEvent);
+router.delete('/deleteevent/:id', isAuth, isAdmin, deleteEvent);
+
+router.get('/getunverifiedevents', isAuth, isAdmin, getUnverifiedEvents);
+
+
 
 
 

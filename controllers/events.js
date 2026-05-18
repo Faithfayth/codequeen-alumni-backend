@@ -121,11 +121,30 @@ const deleteEvent = async (req, res) => {
     }
 };
 
+
+const getUnverifiedEvents = async (req, res) => {
+    try {
+        // Find all events where isVerified is explicitly false
+        // Sorted with the oldest submissions first so admins can process them in order
+        const pendingEvents = await Event.find({ isVerified: false }).sort({ startdate: 1 });
+        
+        res.status(200).json({
+            message: "Unverified events retrieved successfully.",
+            count: pendingEvents.length,
+            result: pendingEvents
+        });
+    } catch (error) {
+        res.status(500).json({ message: "Failed to fetch unverified events", error: error.message });
+    }
+};
+
+
 module.exports = {
     createEvent,
     verifyEvent,
     getCurrentEvents,
     getPastEvents,
     registerForEvent,
-    deleteEvent
+    deleteEvent,
+    getUnverifiedEvents
 };
