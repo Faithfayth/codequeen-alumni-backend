@@ -6,7 +6,7 @@ const { isAuth, isAdmin, isAlumna, isPartner, isStudent } = require('../middlewa
 
 const router = express.Router();
 
-//have to pass middleware in the router function
+//pass middleware in the router function
 router.post('/createbadge',isAuth, isAdmin, createBadge );
 
 router.put('/updateBadge/:id',isAuth, isAdmin, updateBadge );

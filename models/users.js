@@ -6,6 +6,7 @@ const usersschema = mongoose.Schema({
     password: { type: String, required: true },
     role:     { type: String, enum: ['alumna','admin', 'partner', 'student'], required: true }, //
     cohort:   { type: Number, default: 0 },
+    cohortHistory: [{ type: Number }], // e.g., [14, 15] //follow up on re-applying students
     timestamp: { type: Date},
     isMentor: { type: Boolean, default: false },
     isAdmin: { type: Boolean, default: false },

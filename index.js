@@ -21,6 +21,7 @@ const generalMessages = require('./routes/generalmessages');
 const eventsRoutes = require('./routes/events');
 const opportunitiesRoutes = require('./routes/opportunities');
 const partnersRoutes = require('./routes/partners');
+const cohortRoutes = require('./routes/cohort');
 
 
 //APP-------------------------------------------------------------------------------------------------------------------
@@ -69,6 +70,7 @@ app.use('/generalmessages', generalMessages);
 app.use('/events', eventsRoutes);
 app.use('/opportunities', opportunitiesRoutes);
 app.use('/partners', partnersRoutes);
+app.use('/cohort', cohortRoutes);
 
 //PORT CONNECTION------------------------------------------------------------------------------------------------------
 const PORT = process.env.PORT || 3000;
