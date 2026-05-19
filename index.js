@@ -22,6 +22,10 @@ const eventsRoutes = require('./routes/events');
 const opportunitiesRoutes = require('./routes/opportunities');
 const partnersRoutes = require('./routes/partners');
 const cohortRoutes = require('./routes/cohort');
+const enrollmentRoutes = require('./routes/enrollments');
+const projectsRoutes = require('./routes/projects');
+const resourceRoutes = require('./routes/resources');
+const electionsRoutes = require('./routes/elections');
 
 
 //APP-------------------------------------------------------------------------------------------------------------------
@@ -70,7 +74,14 @@ app.use('/generalmessages', generalMessages);
 app.use('/events', eventsRoutes);
 app.use('/opportunities', opportunitiesRoutes);
 app.use('/partners', partnersRoutes);
-app.use('/cohort', cohortRoutes);
+app.use('/cohort', cohortRoutes);  //not tested
+app.use('/enrollments', enrollmentRoutes);//not tested
+app.use('/projects', projectsRoutes);//not tested
+app.use('/resources', resourceRoutes);//not tested
+app.use('/elections', electionsRoutes);//not tested
+
+
+
 
 //PORT CONNECTION------------------------------------------------------------------------------------------------------
 const PORT = process.env.PORT || 3000;
