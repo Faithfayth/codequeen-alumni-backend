@@ -1,6 +1,6 @@
 const Resource = require('../models/resources');
 const User = require('../controllers/users');
-const cloudinary = require('../config/cloudinary'); // Ensure this is configured
+const cloudinary = require('../config/cloudinary'); 
 const streamifier = require('streamifier');
 
 // 1. ADD RESOURCE (Supports Link OR File Upload)

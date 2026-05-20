@@ -60,6 +60,7 @@ const awardBadge = async (req, res) => {
     }
 };
 
+//function to fetch alumni
 
 
 

@@ -26,6 +26,7 @@ const enrollmentRoutes = require('./routes/enrollments');
 const projectsRoutes = require('./routes/projects');
 const resourceRoutes = require('./routes/resources');
 const electionsRoutes = require('./routes/elections');
+const achievementsRoutes = require('./routes/achievements');
 
 
 //APP-------------------------------------------------------------------------------------------------------------------
@@ -79,6 +80,7 @@ app.use('/enrollments', enrollmentRoutes);//not tested
 app.use('/projects', projectsRoutes);//not tested
 app.use('/resources', resourceRoutes);//not tested
 app.use('/elections', electionsRoutes);//not tested
+app.use('/achievements', achievementsRoutes);
 
 
 
