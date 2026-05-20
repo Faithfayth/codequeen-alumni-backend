@@ -27,6 +27,9 @@ const projectsRoutes = require('./routes/projects');
 const resourceRoutes = require('./routes/resources');
 const electionsRoutes = require('./routes/elections');
 const achievementsRoutes = require('./routes/achievements');
+const galleryRoutes = require('./routes/gallery');
+const walloffameRoutes = require('./routes/walloffame');
+const alumdirectoryRoutes = require('./routes/alumdirectory');
 
 
 //APP-------------------------------------------------------------------------------------------------------------------
@@ -80,7 +83,12 @@ app.use('/enrollments', enrollmentRoutes);//not tested
 app.use('/projects', projectsRoutes);//not tested
 app.use('/resources', resourceRoutes);//not tested
 app.use('/elections', electionsRoutes);//not tested
-app.use('/achievements', achievementsRoutes);
+app.use('/achievements', achievementsRoutes);//not tested
+app.use('/gallery', galleryRoutes);//not tested
+app.use('/walloffame', walloffameRoutes);//not tested
+app.use('/alumdirectory', alumdirectoryRoutes);//not tested
+
+
 
 
 
