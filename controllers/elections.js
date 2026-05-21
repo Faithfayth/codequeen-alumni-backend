@@ -1,7 +1,6 @@
 const Election = require('../models/elections');
 
 // 1. CREATE ELECTION (Admin Only)
-// Initializes the election shell. Candidates are added later.
 const createElection = async (req, res) => {
     try {
         const { electionName, description, startDate, endDate } = req.body;
@@ -11,52 +10,77 @@ const createElection = async (req, res) => {
             description,
             startDate,
             endDate,
-            candidates: [],
-            votersRecord: [], // Tracks {userID, postVotedFor}
-            isActive: false   // Admin must toggle this to start the election
+            posts: [], // Starts with no positions defined
+            votersRecord: [], 
+            isActive: false   
         });
 
         await newElection.save();
-        res.status(201).json({ message: "Election created! You can now add candidates.", election: newElection });
+        res.status(201).json({ message: "Election created! Go ahead and add posts/positions.", election: newElection });
     } catch (error) {
         res.status(500).json({ message: "Creation failed", error: error.message });
     }
 };
 
-// 2. ADD CANDIDATE TO POST (Admin Only)
-// Adds a candidate and assigns them to a specific post (e.g., President)
-const addCandidate = async (req, res) => {
+// [NEW HELPER] 2. ADD POST/POSITION TO ELECTION (Admin Only)
+// e.g., Body: { "postName": "Vice President" }
+const addPostToElection = async (req, res) => {
     try {
         const { electionId } = req.params;
-        const { candidateID, post, manifesto, imageurl } = req.body;
+        const { postName } = req.body;
 
-        // Validation
-        if (!candidateID || !post || !manifesto || !imageurl) {
-            return res.status(400).json({ message: "All candidate fields are required." });
-        }
+        if (!postName) return res.status(400).json({ message: "Post name is required." });
 
-        // Check if candidate is already in this election (any post)
-        const exists = await Election.findOne({ _id: electionId, "candidates.candidateID": candidateID });
-        if (exists) return res.status(400).json({ message: "This person is already a candidate." });
+        // Check if the post structure already exists in this election
+        const exists = await Election.findOne({ _id: electionId, "posts.postName": postName });
+        if (exists) return res.status(400).json({ message: "This post position already exists." });
 
-        const updated = await Election.findByIdAndUpdate(
+        const updatedElection = await Election.findByIdAndUpdate(
             electionId,
-            { 
-                $push: { 
-                    candidates: { candidateID, post, manifesto, imageurl, votesCount: 0 } 
-                } 
-            },
+            { $push: { posts: { postName, candidates: [] } } },
             { new: true }
-        ).populate('candidates.candidateID', 'username');
+        );
 
-        res.status(200).json({ message: `Candidate added to ${post}`, result: updated });
+        res.status(200).json({ message: `Position '${postName}' initialized!`, election: updatedElection });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
 };
 
-// 3. TOGGLE ELECTION STATUS (Admin Only)
-// Opens or closes the voting booth
+// 3. ADD CANDIDATE TO SPECIFIC POST ARRAY (Admin Only)
+const addCandidate = async (req, res) => {
+    try {
+        const { electionId } = req.params;
+        const { candidateID, name, postName, manifesto, imageurl } = req.body;
+
+        if (!candidateID || !name || !postName || !manifesto || !imageurl) {
+            return res.status(400).json({ message: "All candidate fields are required." });
+        }
+
+        // Check if candidate is already running somewhere inside this election
+        const exists = await Election.findOne({ _id: electionId, "posts.candidates.candidateID": candidateID });
+        if (exists) return res.status(400).json({ message: "This user is already a candidate in this election." });
+
+        // Push candidate directly into the matched posts sub-document array
+        const updated = await Election.findOneAndUpdate(
+            { _id: electionId, "posts.postName": postName },
+            { 
+                $push: { 
+                    "posts.$.candidates": { candidateID, name, manifesto, imageurl, votesCount: 0 } 
+                } 
+            },
+            { new: true }
+        ).populate('posts.candidates.candidateID', 'username');
+
+        if (!updated) return res.status(404).json({ message: "Target post position not found in this election." });
+
+        res.status(200).json({ message: `Candidate added to ${postName}`, result: updated });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+// 4. TOGGLE ELECTION STATUS (Admin Only)
 const toggleElectionActive = async (req, res) => {
     try {
         const { id } = req.params;
@@ -69,8 +93,7 @@ const toggleElectionActive = async (req, res) => {
     }
 };
 
-// 4. GET ACTIVE ELECTIONS (Alumnae Only)
-// Used by the frontend to build the ballot UI
+// 5. GET ACTIVE ELECTIONS (Alumnae Only)
 const getActiveElections = async (req, res) => {
     try {
         const now = new Date();
@@ -78,7 +101,7 @@ const getActiveElections = async (req, res) => {
             isActive: true,
             startDate: { $lte: now },
             endDate: { $gte: now }
-        }).populate('candidates.candidateID', 'username');
+        }).populate('posts.candidates.candidateID', 'username');
 
         res.status(200).json(elections);
     } catch (error) {
@@ -86,8 +109,7 @@ const getActiveElections = async (req, res) => {
     }
 };
 
-// 5. CAST VOTE (Alumnae Only)
-// The core logic for voting: one vote allowed per position (post)
+// 6. CAST VOTE (Alumnae Only)
 const castVote = async (req, res) => {
     try {
         const { electionId, candidateId, postName } = req.body;
@@ -98,33 +120,30 @@ const castVote = async (req, res) => {
             return res.status(400).json({ message: "This election is not active." });
         }
 
-        // SECURITY: Check if this user has already voted for this specific post in this election
+        // Verify single vote clearance condition
         const alreadyVoted = election.votersRecord.some(
             record => record.userID.toString() === userId && record.postVotedFor === postName
         );
-
         if (alreadyVoted) {
             return res.status(403).json({ message: `You have already cast your vote for the ${postName} position.` });
         }
 
-        // ATOMIC UPDATE: 
-        // 1. Match election, the specific candidate ID, and the specific postName
-        // 2. Increment that candidate's vote count
-        // 3. Push the user to the votersRecord for that specific post
+        // Deep matching step to find election, postName, and candidateId inside nested schemas
         const result = await Election.findOneAndUpdate(
             { 
-                _id: electionId, 
-                "candidates.candidateID": candidateId,
-                "candidates.post": postName 
+                _id: electionId
             },
             { 
-                $inc: { "candidates.$.votesCount": 1 },
+                $inc: { "posts.$[p].candidates.$[c].votesCount": 1 },
                 $push: { votersRecord: { userID: userId, postVotedFor: postName } } 
             },
-            { new: true }
+            { 
+                arrayFilters: [ { "p.postName": postName }, { "c.candidateID": candidateId } ],
+                new: true 
+            }
         );
 
-        if (!result) return res.status(404).json({ message: "Candidate or Post mapping failed." });
+        if (!result) return res.status(404).json({ message: "Candidate or Post structural mapping failed." });
 
         res.status(200).json({ message: `Vote for ${postName} submitted successfully.` });
     } catch (error) {
@@ -132,16 +151,16 @@ const castVote = async (req, res) => {
     }
 };
 
-// 6. GET ELECTION RESULTS (Admin/Alumnae)
+// 7. GET ELECTION RESULTS (Admin/Alumnae)
 const getElectionResults = async (req, res) => {
     try {
         const { id } = req.params;
-        const election = await Election.findById(id).populate('candidates.candidateID', 'username');
+        const election = await Election.findById(id).populate('posts.candidates.candidateID', 'username');
         if (!election) return res.status(404).json({ message: "Election not found" });
 
         res.status(200).json({
             name: election.electionName,
-            results: election.candidates
+            posts: election.posts // Directly groups everything by position for the UI!
         });
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -150,6 +169,7 @@ const getElectionResults = async (req, res) => {
 
 module.exports = {
     createElection,
+    addPostToElection, 
     addCandidate,
     toggleElectionActive,
     getActiveElections,

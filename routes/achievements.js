@@ -14,9 +14,9 @@ router.post('/createachievement',isAuth, isAdmin, createAchievement );
 
 router.get('/getallachievements',isAuth, isAdmin, getAllAchievements );
 
-router.put('/updateachievement',isAuth, isAdmin, updateAchievement );
+router.put('/updateachievement/:id', isAuth, isAdmin, updateAchievement);
 
-router.delete('/deleteAchievement',isAuth, isAdmin, deleteAchievement );
+router.delete('/deleteachievement/:id', isAuth, isAdmin, deleteAchievement);
 
 
 module.exports = router;

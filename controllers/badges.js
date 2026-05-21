@@ -62,8 +62,15 @@ const awardBadge = async (req, res) => {
 
 //function to fetch alumni
 
+// Fetch all badges (public)
+const getBadges = async (req, res) => {
+    try {
+        const badges = await Badge.find({});
+        res.status(200).json({ message: "Badges fetched", result: badges });
+    } catch (error) {
+        res.status(500).json({ message: "Fetching badges failed", error: error.message });
+    }
+};
 
 
-
-
-module.exports = { createBadge, updateBadge, deleteBadge, awardBadge };
+module.exports = { createBadge, updateBadge, deleteBadge, awardBadge, getBadges };
