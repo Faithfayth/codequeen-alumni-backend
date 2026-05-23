@@ -9,13 +9,13 @@ const { isAuth, isAdmin, isAlumna, isPartner, isStudent } = require('../middlewa
 
 const router = express.Router();
 
-router.post('/addhonoree',isAuth, isAlumna, addHonoree );
+router.post('/addhonoree',isAuth, isAdmin, addHonoree );
 
-router.post('/getwalloffame',isAuth, isAlumna, getWallOfFame );
+router.get('/getwalloffame',isAuth, isAlumna, isPartner, getWallOfFame );
 
-router.post('/updatehonoree',isAuth, isAlumna, updateHonoree );
+router.put('/updatehonoree',isAuth, isAdmin, updateHonoree );
 
-router.post('/deletehonoree',isAuth, isAlumna, deleteHonoree );
+router.delete('/deletehonoree',isAuth, isAdmin, deleteHonoree );
 
 
 module.exports = router;

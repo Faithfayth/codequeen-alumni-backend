@@ -13,11 +13,11 @@ const router = express.Router();
 
 router.post('/uploadproject',isAuth, isAlumna, uploadProject );
 
-router.post('/getallprojects',isAuth, isAlumna, getAllProjects );
+router.get('/getallprojects',isAuth, isAlumna, isPartner, getAllProjects );
 
-router.post('/searchprojects',isAuth, isAlumna, searchProjects );
+router.get('/searchprojects',isAuth, isAlumna, isPartner, searchProjects );
 
-router.post('/deleteproject',isAuth, isAdmin, deleteProject );
+router.delete('/deleteproject',isAuth, isAdmin, deleteProject );
 
 //will add verify functions later
 

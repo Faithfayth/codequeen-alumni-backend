@@ -141,10 +141,11 @@ const getUnverifiedEvents = async (req, res) => { //Only accessible to admin >>p
 
 module.exports = {
     createEvent,
-    verifyEvent,
+    verifyEvent,//button
     getCurrentEvents,
     getPastEvents,
-    registerForEvent,
+    registerForEvent,//button
     deleteEvent,
     getUnverifiedEvents
 };
+//update event 

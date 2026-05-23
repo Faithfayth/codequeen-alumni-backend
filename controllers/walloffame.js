@@ -1,4 +1,4 @@
-const WallOfFame = require('../models/WallOfFame');
+const WallOfFame = require('../models/walloffame');
 
 // 1. ADD NEW HONOREE CARD (Admin Only)
 const addHonoree = async (req, res) => {

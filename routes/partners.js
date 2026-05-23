@@ -1,11 +1,12 @@
 const express = require('express');
 
-const { createPartnerProfile,
-        getApprovedPartners,
-        updatePartnerProfile,
-        deletePartnerProfile,
-        verifyPartnerStatus,
-        getPendingPartners } = require('../controllers/partners');
+const { createPartnerProfile,//ad/prtn   [create]
+        getApprovedPartners, //ad/alum/partners/students   [view]
+        updatePartnerProfile,//ad/prtn (one profile per partner)  [button]
+        deletePartnerProfile,//ad   [button]
+        verifyPartnerStatus,//ad     [button]
+        getPendingPartners //ad  (fetch->[button])
+    } = require('../controllers/partners');
 
 
 const { isAuth, isAdmin, isAlumna, isPartner, isStudent } = require('../middlewares/isRole');

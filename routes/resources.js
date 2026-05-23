@@ -1,7 +1,6 @@
 const express = require('express');
 const multer = require('multer');
 
-// Controller Import - Added missing 'require'
 const { 
     addResource,
     getAllResources,
@@ -9,44 +8,28 @@ const {
     deleteResource 
 } = require('../controllers/resources');
 
-// Middleware Import
-const { isAuth, isAlumna, isAdmin } = require('../middlewares/isRole');
+const { isAuth, isAlumna } = require('../middlewares/isRole');
 
-// Multer Configuration (Memory storage for Cloudinary streaming)
 const storage = multer.memoryStorage();
 const upload = multer({ 
     storage,
-    limits: { fileSize: 10 * 1024 * 1024 } // 10MB limit
+    limits: { fileSize: 10 * 1024 * 1024 } // 10MB limit Max
 });
 
 const router = express.Router();
 
-/**
- * @route   POST /api/resources/addresource
- * @desc    Upload a file or add a link (Admin/Alumna only)
- * @access  Private
- */
-router.post('/addresource', isAuth, upload.single('resourceFile'), addResource);  // 'resourceFile' is the name attribute for the frontend input
+// Fallback protection intercepts empty streams only if a backup text URL link is missing
+router.post('/addresource', upload.single('resourceFile'), isAuth, isAlumna, (req, res, next) => {
+    if (req.file && (!req.file.buffer || req.file.buffer.length === 0) && !req.body.url) {
+        return res.status(400).json({ 
+            message: "File processing failure: The uploaded file asset buffer stream arrived completely empty." 
+        });
+    }
+    next();
+}, addResource);
 
-/**
- * @route   GET /api/resources/getallresources
- * @desc    Fetch all shared resources
- * @access  Private
- */
-router.get('/getallresources', isAuth, getAllResources);
-
-/**
- * @route   PUT /api/resources/updateresource/:id
- * @desc    Update a resource by ID
- * @access  Private (Owner or Admin)
- */
-router.put('/updateresource/:id', isAuth, updateResource);
-
-/**
- * @route   DELETE /api/resources/deleteresource/:id
- * @desc    Remove a resource and its cloud file
- * @access  Private (Owner or Admin)
- */
-router.delete('/deleteresource/:id', isAuth, deleteResource);
+router.get('/getallresources', isAuth, isAlumna, getAllResources);
+router.put('/updateresource/:id', isAuth, isAlumna, updateResource);
+router.delete('/deleteresource/:id', isAuth, isAlumna, deleteResource);
 
 module.exports = router;

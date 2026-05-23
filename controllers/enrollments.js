@@ -1,23 +1,23 @@
 const Enrollment = require('../models/enrollments');
 const User = require('../models/users');
-const Cohort = require('../models/cohort'); // Imported to find cohort numbers
-const { autoAssignToCohort } = require('../helpers/assignCohort'); // Our automation sync helper
+const Cohort = require('../models/cohort');
+const { autoAssignToCohort } = require('../helpers/assignCohort');
 
-// 1. JOIN COHORT (Student-initiated)
+// 1. JOIN COHORT
 const enrollInCohort = async (req, res) => {
     try {
         const { cohortID } = req.body;
         const userID = req.user.id;
 
         const existing = await Enrollment.findOne({ userID, cohortID });
-        if (existing) return res.status(400).json({ message: "Already enrolled in this specific cohort." });
+        if (existing) return res.status(400).json({ message: "Already enrolled in this cohort." });
 
         const newEnrollment = new Enrollment({
             userID,
             cohortID,
             attendance: false,
-            projectSubmission: false,
-            adminverified: 'not-eligible'
+            projectSubmission: 'not-eligible', // Aligned with new schema enum
+            adminverified: false               // Aligned with new schema boolean
         });
 
         await newEnrollment.save();
@@ -27,102 +27,78 @@ const enrollInCohort = async (req, res) => {
     }
 };
 
-// 2. UPDATE PROGRESS BY STUDENT & COHORT (Admin-facing)
+// 2. UPDATE PROGRESS (Admin toggles attendance/submission)
 const updateProgressByStudent = async (req, res) => {
     try {
-        const { studentId } = req.params; 
-        const { attendance, projectSubmission, cohortID } = req.body; // FIX: Pass cohortID from frontend to target the correct track
+        const { studentId, cohortID, attendance, hasSubmittedProject } = req.body; 
 
-        if (!cohortID) {
-            return res.status(400).json({ message: "Validation Error: cohortID is required to identify the target track." });
+        if (!cohortID) return res.status(400).json({ message: "cohortID is required." });
+
+        // Logic: If admin marks project as submitted (via a checkbox/toggle)
+        // we move projectSubmission from 'not-eligible' to 'pending'
+        let submissionStatus = 'not-eligible';
+        if (hasSubmittedProject) {
+            submissionStatus = 'pending';
         }
 
-        let status = 'not-eligible';
-        if (attendance === true && projectSubmission === true) {
-            status = 'pending';
-        }
-
-        // FIX: Query scopes both user AND specific cohort to prevent overwriting historical records
         const updatedEnrollment = await Enrollment.findOneAndUpdate(
             { userID: studentId, cohortID: cohortID }, 
-            { attendance, projectSubmission, adminverified: status },
-            { returnDocument: 'after' }
+            { 
+                attendance, 
+                projectSubmission: submissionStatus,
+                adminverified: false // Reset verification if progress is changed
+            },
+            { new: true }
         ).populate('userID', 'username');
 
-        if (!updatedEnrollment) return res.status(404).json({ message: "No enrollment record matching this student and cohort combination found." });
+        if (!updatedEnrollment) return res.status(404).json({ message: "Enrollment record not found." });
 
-        res.status(200).json({ message: "Student progress parameters updated", result: updatedEnrollment });
+        res.status(200).json({ message: "Progress updated", result: updatedEnrollment });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
 };
 
-// 3. FETCH PENDING APPROVALS (Admin Dashboard)
+// 3. FETCH PENDING (Now queries projectSubmission: 'pending')
 const getPendingApprovals = async (req, res) => {
     try {
-        const pending = await Enrollment.find({ adminverified: 'pending' })
+        // Updated query to match your new interchanged fields
+        const pending = await Enrollment.find({ projectSubmission: 'pending' })
             .populate('userID', 'username email')
             .populate('cohortID', 'cohortname');
             
-        res.status(200).json(pending);
+        res.status(200).json({ result: pending });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
 };
 
-// 4. APPROVE & PROMOTE BY USER ID (Admin Lifecycle Action)
+// 4. FINAL APPROVAL
 const approveByStudentId = async (req, res) => {
     try {
-        const { studentId } = req.params;
-        const { cohortID } = req.body; // FIX: Expect cohortID in payload to identify graduation track
+        const { studentId, cohortID } = req.body;
 
-        if (!cohortID) {
-            return res.status(400).json({ message: "Validation Error: cohortID must be provided to execute graduation push." });
-        }
-
-        // 1. Find enrollment by userID and cohort, then approve
         const enrollment = await Enrollment.findOneAndUpdate(
-            { userID: studentId, cohortID: cohortID },
-            { adminverified: 'approved' },
-            { returnDocument: 'after' }
+            { userID: studentId, cohortID: cohortID, projectSubmission: 'pending' },
+            { 
+                projectSubmission: 'approved', // Update enum
+                adminverified: true            // Update boolean
+            },
+            { new: true }
         );
 
-        if (!enrollment) return res.status(404).json({ message: "Matching pending enrollment record not found." });
+        if (!enrollment) return res.status(404).json({ message: "No pending project found for this student." });
 
-        // 2. Fetch the target cohort document to read its numeric cohortname
         const targetCohortDoc = await Cohort.findById(cohortID);
-        if (!targetCohortDoc) return res.status(404).json({ message: "Target graduation cohort metadata missing from database indexes." });
-
-        // 3. Update the User role to alumna
-        const user = await User.findByIdAndUpdate(
-            studentId,
-            { role: 'alumna' },
-            { returnDocument: 'after' }
-        );
-
-        // 🔥 CONNECTING THE LOOPS: Sync student to numerical tracking list and history array automatically
+        
+        // Promote User
+        const user = await User.findByIdAndUpdate(studentId, { role: 'alumna' }, { new: true });
         await autoAssignToCohort(studentId, targetCohortDoc.cohortname);
 
-        // 4. Socket.io Live Notification
-        const io = req.app.get('io');
-        if (io) {
-            // Fires targeted message straight to the student's personal socket channel space
-            io.to(studentId).emit('role_updated', {
-                message: "Congratulations, sister! Your profile has officially been upgraded to Alumna status!",
-                newRole: 'alumna',
-                cohort: targetCohortDoc.cohortname
-            });
-        }
-
-        res.status(200).json({ message: `Successfully promoted ${user.username} to Alumna for Cohort ${targetCohortDoc.cohortname}!`, user: user.username });
+        res.status(200).json({ message: "Student promoted to Alumna!", user: user.username });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
 };
 
-module.exports = {
-    enrollInCohort,
-    updateProgressByStudent,
-    getPendingApprovals,
-    approveByStudentId
-};
+module.exports = { enrollInCohort, updateProgressByStudent, getPendingApprovals, approveByStudentId };

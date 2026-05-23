@@ -1,16 +1,9 @@
 const express = require('express');
-
 const cors = require('cors');
-
 const { Server } = require('socket.io');
-
 const http = require('http'); 
-
 const connectDB = require('./db');
-
 const dotenv = require('dotenv').config();
-
-
 
 //Declare routes
 const userRoutes = require('./routes/users');
@@ -31,11 +24,9 @@ const galleryRoutes = require('./routes/gallery');
 const walloffameRoutes = require('./routes/walloffame');
 const alumdirectoryRoutes = require('./routes/alumdirectory');
 
-
 //APP-------------------------------------------------------------------------------------------------------------------
 const app = express();
 const server = http.createServer(app);
-app.use(express.json());
 
 const io = new Server(server, {
     cors: {
@@ -54,8 +45,7 @@ io.on('connection', (socket) => {
     });
 });
 
-
-//CORS----------------------------------------------------------------------------------------------------------------
+//CORS MIDDLEWARE CONFIGURATION-----------------------------------------------------------------------------------------
 const corsOptions = {
     origin: '*',
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
@@ -63,13 +53,19 @@ const corsOptions = {
     credentials: true,
 };
 
+// CORS must always run before any routing or parsing happens!
 app.use(cors(corsOptions));
+
+// GLOBAL PARSERS-------------------------------------------------------------------------------------------------------
+// Moved safely here so it doesn't conflict with or strip raw binary multipart data streams before Multer can catch them
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 app.get('/', (req, res) => {
     res.send('Welcome to the CodeQueen Alumni API');
 });
-//ROUTES---------------------------------------------------------------------------------------------------------------------
 
+//ROUTES---------------------------------------------------------------------------------------------------------------------
 app.use('/users', userRoutes);
 app.use('/badges', badgeRoutes);
 app.use('/profiles', profileRoutes);
@@ -78,29 +74,22 @@ app.use('/generalmessages', generalMessages);
 app.use('/events', eventsRoutes);
 app.use('/opportunities', opportunitiesRoutes);
 app.use('/partners', partnersRoutes);
-app.use('/cohort', cohortRoutes);  //not tested
-app.use('/enrollments', enrollmentRoutes);//not tested
-app.use('/projects', projectsRoutes);//not tested
-app.use('/resources', resourceRoutes);//not tested
-app.use('/elections', electionsRoutes);//not tested
-app.use('/achievements', achievementsRoutes);//not tested
-app.use('/gallery', galleryRoutes);//not tested
-app.use('/walloffame', walloffameRoutes);//not tested
-app.use('/alumdirectory', alumdirectoryRoutes);//not tested
-
-
-
-
-
+app.use('/cohort', cohortRoutes);  
+app.use('/enrollments', enrollmentRoutes);
+app.use('/projects', projectsRoutes);
+app.use('/resources', resourceRoutes); // ⚡ Now Multer will cleanly parse the request file buffer!
+app.use('/elections', electionsRoutes);
+app.use('/achievements', achievementsRoutes);
+app.use('/gallery', galleryRoutes);
+app.use('/walloffame', walloffameRoutes);
+app.use('/alumdirectory', alumdirectoryRoutes);
 
 //PORT CONNECTION------------------------------------------------------------------------------------------------------
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 5000; // Updated to match your frontend port 5000 configuration smoothly
 
-// Change app.listen to server.listen
 server.listen(PORT, () => {
     console.log(`Server is running on port at http://localhost:${PORT}`);
 });
-
 
 //CONNECT TO DB------------------------------------------------------------------------------------------------------
 connectDB();

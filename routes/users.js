@@ -17,7 +17,7 @@ router.get('/getallstudents', getAllStudents);
 
 router.get('/getallalumnae', getAllAlumnae);
 
-router.get('/getallaartners', getAllPartners);
+router.get('/getallapartners', getAllPartners);
 
 router.get('/getalladmin', getAllAdmins);
 

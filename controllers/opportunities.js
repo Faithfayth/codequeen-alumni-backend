@@ -1,4 +1,4 @@
-const Opportunity = require('../models/Opportunities');
+const Opportunity = require('../models/opportunities');
 
 // 1. CREATE OPPORTUNITY (Alumni or Admin)
 const createOpportunity = async (req, res) => {

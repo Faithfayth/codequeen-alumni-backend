@@ -4,7 +4,7 @@ const resourcesschema = mongoose.Schema({
     title: { type: String, required: true },
     description: { type: String, required: true },
     // URL can be a manually entered link or the Cloudinary secure link
-    url: { type: String, required: true }, 
+    url: { type: String }, 
     category: { type: String, required: true },
     addedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'Users', required: true },
     // New fields for file management

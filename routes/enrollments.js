@@ -11,11 +11,11 @@ const router = express.Router();
 
 router.post('/enrollincohort',isAuth, isAdmin, enrollInCohort );
 
-router.post('/updateprogressbystudent',isAuth, isAdmin, updateProgressByStudent );
+router.put('/updateprogressbystudent',isAuth, isAdmin, updateProgressByStudent );
 
-router.post('/getpendingapprovals',isAuth, isAdmin, getPendingApprovals );
+router.get('/getpendingapprovals',isAuth, isAdmin, getPendingApprovals );
 
-router.post('/approvebystudentId',isAuth, isAdmin, approveByStudentId );
+router.put('/approvebystudentId',isAuth, isAdmin, approveByStudentId );
 
 
 

@@ -9,11 +9,11 @@ const router = express.Router();
 
 router.post('/createcohort',isAuth, isAdmin, createCohort );
 
-router.post('/getallcohorts',isAuth, isAdmin, getAllCohorts );
+router.get('/getallcohorts',isAuth, isAdmin, getAllCohorts );
 
-router.post('/getsinglecohort/:id',isAuth, isAdmin, getSingleCohort );
+router.get('/getsinglecohort/:id',isAuth, isAdmin, getSingleCohort );
 
-router.post('/deletecohort/:id',isAuth, isAdmin, deleteCohort );
+router.delete('/deletecohort/:id',isAuth, isAdmin, deleteCohort );
 
 
 

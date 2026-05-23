@@ -1,11 +1,12 @@
 const express = require('express');
 
-const {createOpportunity,
-       getUpcomingOpportunities,
-       getPastOpportunities,
-       verifyOpportunity,
-       getUnverifiedOpportunities,
-       deleteOpportunity } = require('../controllers/opportunities');
+const {createOpportunity,//tab
+       getUpcomingOpportunities,//tab
+       getPastOpportunities,//tab
+       verifyOpportunity,//button
+       getUnverifiedOpportunities,  //tab
+       deleteOpportunity //button
+                     } = require('../controllers/opportunities');
 
 const { isAuth, isAdmin, isAlumna, isPartner, isStudent } = require('../middlewares/isRole');
 

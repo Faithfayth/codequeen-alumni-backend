@@ -72,7 +72,10 @@ const deleteProject = async (req, res) => {
 
 module.exports = {
     uploadProject,
-    getAllProjects,
+    getAllProjects, //verified
     searchProjects,
     deleteProject
 };
+//get unverified
+//verify project
+//update

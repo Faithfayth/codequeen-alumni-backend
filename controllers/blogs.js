@@ -4,7 +4,7 @@ const User = require('../models/users');
 // 1. CREATE BLOG POST (Alumni or Admin Only)
 const createBlog = async (req, res) => {
     try {
-        const { title, content, imageUrl } = req.body; // Look! No authorname needed here
+        const { title, content, imageUrl } = req.body; 
 
         // Find the logged-in user in the database using their token ID
         const user = await User.findById(req.user.id);
@@ -19,12 +19,14 @@ const createBlog = async (req, res) => {
         });
 
         await newBlog.save();
-        // Inside your createBlog controller after saving to MongoDB:
+        
         const io = req.app.get('io');
-        io.emit('new_blog_published', {
-        title: newBlog.title,
-        author: newBlog.authorname
-        });
+        if (io) {
+            io.emit('new_blog_published', {
+                title: newBlog.title,
+                author: newBlog.authorname
+            });
+        }
         res.status(201).json({ message: "Blog post published successfully!", result: newBlog });
     } catch (error) {
         res.status(500).json({ message: "Failed to create blog post", error: error.message });
@@ -90,22 +92,22 @@ const deleteBlog = async (req, res) => {
 // 5. ADD COMMENT (Alumni Only)
 const addComment = async (req, res) => {
     try {
-        const { content } = req.body; // Look! No commentername needed here either
+        const { content } = req.body; 
         
-        // Fetch the commenter's account to grab their verified name
+        // Fetch the commenter's account to grab their verified username directly from database registry
         const user = await User.findById(req.user.id);
         if (!user) return res.status(404).json({ message: "User not found." });
 
         const commentStructure = {
             commenterID: req.user.id,
-            commentername: user.username, // Injected seamlessly by the server
+            commentername: user.username, // Safely matches user document database property tracing
             content
         };
 
         const updatedBlog = await Blog.findByIdAndUpdate(
             req.params.id,
             { $push: { comments: commentStructure } },
-            { new: true } //{ returnDocument: 'after' }
+            { new: true }
         );
 
         if (!updatedBlog) return res.status(404).json({ message: "Target blog post not found." });
