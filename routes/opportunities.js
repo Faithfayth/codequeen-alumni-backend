@@ -1,30 +1,32 @@
 const express = require('express');
+const {
+    createOpportunity,
+    getUpcomingOpportunities,
+    getPastOpportunities,
+    verifyOpportunity,
+    getUnverifiedOpportunities,
+    deleteOpportunity
+} = require('../controllers/opportunities');
 
-const {createOpportunity,//tab
-       getUpcomingOpportunities,//tab
-       getPastOpportunities,//tab
-       verifyOpportunity,//button
-       getUnverifiedOpportunities,  //tab
-       deleteOpportunity //button
-                     } = require('../controllers/opportunities');
-
-const { isAuth, isAdmin, isAlumna, isPartner, isStudent } = require('../middlewares/isRole');
-
+const { isAuth, isAdmin } = require('../middlewares/isRole');
 
 const router = express.Router();
 
-router.post('/createopportunity', isAuth, isAlumna, createOpportunity);
+//Combined access verification logic directly on the post handler execution chain
+router.post('/createopportunity', isAuth, (req, res, next) => {
+    if (req.user.isAdmin || req.user.role === 'alumna' || req.user.role === 'partner') {
+        return next();
+    }
+    return res.status(403).json({ message: "Access Denied: Valid Alumna or Partner access level credentials required." });
+}, createOpportunity);
 
-router.get('/getpcomingpportunities', isAuth, isAlumna, getUpcomingOpportunities);
+// Display Routes accessible to all authenticated dashboard systems
+router.get('/getpcomingpportunities', isAuth, getUpcomingOpportunities);
+router.get('/getpastopportunities', isAuth, getPastOpportunities);
 
-router.get('/getpastopportunities', isAuth, isAlumna, getPastOpportunities);
-
+// Admin Control Panel Verification Routes
 router.put('/verifyopportunity/:id', isAuth, isAdmin, verifyOpportunity);
-
 router.get('/getunverifiedopportunities', isAuth, isAdmin, getUnverifiedOpportunities);
-
 router.delete('/deleteopportunity/:id', isAuth, isAdmin, deleteOpportunity);
-
-
 
 module.exports = router;

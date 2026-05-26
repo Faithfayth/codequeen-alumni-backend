@@ -40,8 +40,20 @@ const getAllProfiles = async (req, res) => {
     }
 };
 
+const getSingleProfile = async (req, res) => { //use alumnaID to fetch a single profile
+    try {
+        const profile = await Profile.findOne({ alumnaID: req.params.id });
+        if (!profile) {
+            return res.status(404).json({ message: "Profile not found" });
+        }
+        res.status(200).json(profile);
+    } catch (error) {
+        res.status(500).json({ message: "Error fetching profile", error: error.message });
+    }
+};
+
 // 3. UPDATE PROFILE (Owner Only)
-const updateProfile = async (req, res) => {
+const updateProfile = async (req, res) => { 
     try {
         const profile = await Profile.findById(req.params.id);
 
@@ -86,4 +98,4 @@ const deleteProfile = async (req, res) => {
 
 
 
-module.exports = {createProfile, getAllProfiles, updateProfile, deleteProfile }
+module.exports = {createProfile, getAllProfiles, updateProfile, deleteProfile, getSingleProfile};

@@ -1,14 +1,37 @@
 const Gallery = require('../models/Gallery');
+const cloudinary = require('../config/cloudinary');
 
 // 1. ADD IMAGE TO GALLERY (Admin and Alumna Only)
 const addImage = async (req, res) => {
     try {
-        const { imageUrl, caption, keywords, category } = req.body;
+        const { caption, keywords, category } = req.body;
+
+        // Verify if a raw file payload was intercepted by the upload pipeline middleware
+        if (!req.file) {
+            return res.status(400).json({ message: "Bad Request: No raw image file uploaded." });
+        }
+
+        // Convert memory storage buffer directly into a format Cloudinary understands
+        const fileBase64 = req.file.buffer.toString('base64');
+        const fileUri = `data:${req.file.mimetype};base64,${fileBase64}`;
+
+        // Stream raw data URI straight up to Cloudinary
+        const cloudinaryResponse = await cloudinary.uploader.upload(fileUri, {
+            folder: 'codequeen_gallery'
+        });
+
+        // Parse explicit string arrays if keywords come in as a comma-separated string from form-data
+        let computedKeywords = [];
+        if (keywords) {
+            computedKeywords = Array.isArray(keywords) 
+                ? keywords 
+                : keywords.split(',').map(kw => kw.trim());
+        }
 
         const newImage = new Gallery({
-            imageUrl,
+            imageUrl: cloudinaryResponse.secure_url, // Extracted from cloud instance response
             caption,
-            keywords: keywords ? keywords : [], // Ensures it defaults to an empty array if blank
+            keywords: computedKeywords,
             category,
             uploadedBy: req.user.id // Captured securely from the decoded auth token
         });
@@ -55,12 +78,15 @@ const deleteImage = async (req, res) => {
         }
 
         // 🔥 THE SECURITY GATEWAY INTERCEPTOR 🔥
-        // Rule: If you aren't an admin AND you aren't the original uploader -> Access Denied.
         if (!req.user.isAdmin && targetImage.uploadedBy.toString() !== req.user.id) {
             return res.status(403).json({ 
                 message: "Access Denied: Alumnae are strictly restricted to removing their own media submissions only." 
             });
         }
+
+        // Optional Clean up Step: If you ever want to destroy the image from Cloudinary workspace 
+        // during asset removal, you would parse the publicId from the stored secure_url and call:
+        // await cloudinary.uploader.destroy(publicId);
 
         await Gallery.findByIdAndDelete(imageId);
 
@@ -76,7 +102,6 @@ const deleteImage = async (req, res) => {
     }
 };
 
-
 const updateImageMetadata = async (req, res) => {
     try {
         const imageId = req.params.id;
@@ -89,7 +114,6 @@ const updateImageMetadata = async (req, res) => {
         }
 
         // 2. 🔥 THE SECURITY GATEWAY INTERCEPTOR 🔥
-        // Rule: If you aren't an admin AND you aren't the original uploader -> Access Denied.
         if (!req.user.isAdmin && targetImage.uploadedBy.toString() !== req.user.id) {
             return res.status(403).json({ 
                 message: "Access Denied: You do not possess structural permissions to alter this gallery record." 
@@ -100,11 +124,9 @@ const updateImageMetadata = async (req, res) => {
         const updateData = {
             caption,
             category,
-            keywords: keywords ? keywords : targetImage.keywords
+            keywords: keywords ? (Array.isArray(keywords) ? keywords : keywords.split(',').map(k => k.trim())) : targetImage.keywords
         };
 
-        // Safety Feature: Only allow the image URL itself to change if an Admin is doing it, 
-        // or if it's the owner updating their own link asset.
         if (imageUrl) {
             updateData.imageUrl = imageUrl;
         }

@@ -6,7 +6,12 @@ const { isAuth, isAdmin, isAlumna, isPartner, isStudent } = require('../middlewa
 
 const router = express.Router();
 
-router.post('/createevent', isAuth, isAlumna, createEvent);
+router.post('/createevent', isAuth, (req, res, next) => {
+    if (req.user.isAdmin || req.user.role === 'alumna' || req.user.role === 'partner') {
+        return next();
+    }
+    return res.status(403).json({ message: "Access Denied: Valid Alumna or Partner access level credentials required." });
+}, createEvent);
 
 router.put('/verifyevent/:id', isAuth,  isAdmin, verifyEvent);
 

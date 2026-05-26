@@ -1,20 +1,23 @@
 const Event = require('../models/Events');
 
-// 1. CREATE EVENT (Alumni Only - Enters database unverified)
-const createEvent = async (req, res) => {   //form filled frontend
+// 1. CREATE EVENT (Alumni or Corporate Partner - Enters database unverified)
+const createEvent = async (req, res) => {   // form filled frontend
     try {
-        const { title, description, category, startdate, enddate, location, imageurl } = req.body;
+        // FIX: Added 'url' to destructuring array properties from request body
+        const { title, description, category, startdate, enddate, location, imageurl, url } = req.body;
 
+        // Validation Check: Ensure structural URL parameters exist if required
         const newEvent = new Event({
-            creatorID: req.user.id, // Pulled from token
+            creatorID: req.user.id, // Pulled dynamically from verified session token
             title,
             description,
             category,
             startdate,
-            enddate,  //frontend has to verify for for enddate not to be a past date
+            enddate,  // Frontend validates that enddate cannot happen in the past
             location,
             imageurl,
-            isVerified: false, // Forces admin review step
+            url,      // FIX: Instantiated into the Database save instance
+            isVerified: false, // Forces admin review loop step
             attendees: []
         });
 
@@ -28,8 +31,8 @@ const createEvent = async (req, res) => {   //form filled frontend
     }
 };
 
-// 2. ADMIN VERIFICATION (Flips status & broadcasts live to all online Alumnae)
-const verifyEvent = async (req, res) => {  //called from an onclick function linked to a button
+// 2. ADMIN VERIFICATION (Flips status & broadcasts live to all online systems)
+const verifyEvent = async (req, res) => {  // called from an onclick function linked to a button
     try {
         const verifiedEvent = await Event.findByIdAndUpdate(
             req.params.id,
@@ -50,7 +53,7 @@ const verifyEvent = async (req, res) => {  //called from an onclick function lin
 };
 
 // 3. FETCH CURRENT/UPCOMING VERIFIED EVENTS
-const getCurrentEvents = async (req, res) => {  //fetch upcoming events. >>onclick function
+const getCurrentEvents = async (req, res) => {  // fetch upcoming events via onclick tab handler
     try {
         const now = new Date();
         
@@ -67,7 +70,7 @@ const getCurrentEvents = async (req, res) => {  //fetch upcoming events. >>oncli
 };
 
 // 4. FETCH PAST VERIFIED EVENTS
-const getPastEvents = async (req, res) => {  //called from onclick function
+const getPastEvents = async (req, res) => {  // called from onclick tab handler
     try {
         const now = new Date();
         
@@ -83,8 +86,8 @@ const getPastEvents = async (req, res) => {  //called from onclick function
     }
 };
 
-// 5. REGISTER FOR AN EVENT (Alumni or Admin)
-const registerForEvent = async (req, res) => {  //called from an onclick function
+// 5. REGISTER FOR AN EVENT (Alumni or Student)
+const registerForEvent = async (req, res) => {  // called from registration button onclick
     try {
         // Enforce that you can only register for verified events
         const event = await Event.findById(req.params.id);
@@ -121,11 +124,10 @@ const deleteEvent = async (req, res) => {
     }
 };
 
-
-const getUnverifiedEvents = async (req, res) => { //Only accessible to admin >>probably onclick function
+// 7. FETCH UNVERIFIED EVENTS (Admin Dashboard Moderation Pool Only)
+const getUnverifiedEvents = async (req, res) => { 
     try {
         // Find all events where isVerified is explicitly false
-        // Sorted with the oldest submissions first so admins can process them in order
         const pendingEvents = await Event.find({ isVerified: false }).sort({ startdate: 1 });
         
         res.status(200).json({
@@ -138,14 +140,52 @@ const getUnverifiedEvents = async (req, res) => { //Only accessible to admin >>p
     }
 };
 
+// 8. UPDATE EVENT (NEW COMPONENT - Permits modification of parameters including the new URL field)
+const updateEvent = async (req, res) => {
+    try {
+        const targetEventID = req.params.id;
+        
+        // Find existing record to evaluate creation mapping safety rules
+        const checkEvent = await Event.findById(targetEventID);
+        if (!checkEvent) return res.status(404).json({ message: "Target modification record absent." });
+
+        // Authorization Constraint: Only the event creator or a system Admin can update this data
+        if (checkEvent.creatorID.toString() !== req.user.id && !req.user.isAdmin) {
+            return res.status(403).json({ message: "Access Denied: You do not possess structural ownership rights to update this event." });
+        }
+
+        // If a non-admin modifies a verified event, revert verification status to trigger re-review
+        const updatePayload = { ...req.body };
+        if (!req.user.isAdmin) {
+            updatePayload.isVerified = false; 
+        }
+
+        const modifiedEvent = await Event.findByIdAndUpdate(
+            targetEventID,
+            { $set: updatePayload },
+            { new: true, runValidators: true }
+        );
+
+        // Notify live clients about the event alteration details via web socket parameters
+        const io = req.app.get('io');
+        io.emit('event_updated_broadcast', modifiedEvent);
+
+        res.status(200).json({ 
+            message: req.user.isAdmin ? "Event updated successfully!" : "Event modified and returned to pending queue for admin review.", 
+            result: modifiedEvent 
+        });
+    } catch (error) {
+        res.status(500).json({ message: "Data adjustment pipeline fault encountered", error: error.message });
+    }
+};
 
 module.exports = {
     createEvent,
-    verifyEvent,//button
+    verifyEvent,
     getCurrentEvents,
     getPastEvents,
-    registerForEvent,//button
+    registerForEvent,
     deleteEvent,
-    getUnverifiedEvents
+    getUnverifiedEvents,
+    updateEvent // Exported cleanly
 };
-//update event 

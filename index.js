@@ -53,6 +53,14 @@ const corsOptions = {
     credentials: true,
 };
 
+// const io = require('socket.io')(server, {
+//     cors: {
+//         origin: "http://127.0.0.1:5500", // Allows your Live Server to connect
+//         methods: ["GET", "POST", "DELETE"],
+//         credentials: true
+//     }
+// });
+
 // CORS must always run before any routing or parsing happens!
 app.use(cors(corsOptions));
 
