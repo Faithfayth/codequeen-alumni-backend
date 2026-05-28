@@ -1,4 +1,4 @@
-const Gallery = require('../models/Gallery');
+const Gallery = require('../models/gallery');
 const cloudinary = require('../config/cloudinary');
 
 // 1. ADD IMAGE TO GALLERY (Admin and Alumna Only)

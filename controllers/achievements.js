@@ -1,4 +1,4 @@
-const Achievements = require('../models/Achievements');
+const Achievements = require('../models/achievements');
 
 // 1. CREATE AN ACHIEVEMENT (Admin Only)
 const createAchievement = async (req, res) => {

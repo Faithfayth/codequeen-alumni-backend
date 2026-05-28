@@ -1,4 +1,4 @@
-const PartnerProfile = require('../models/Partners');
+const PartnerProfile = require('../models/partners');
 
 // 1. CREATE PARTNER PROFILE (Partner Role Only - Strict 1:1)
 const createPartnerProfile = async (req, res) => {

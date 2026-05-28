@@ -1,4 +1,4 @@
-const Event = require('../models/Events');
+const Event = require('../models/events');
 
 // 1. CREATE EVENT (Alumni or Corporate Partner - Enters database unverified)
 const createEvent = async (req, res) => {   // form filled frontend
