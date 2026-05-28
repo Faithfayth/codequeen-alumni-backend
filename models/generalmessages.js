@@ -8,4 +8,4 @@ const generalmessageschema = mongoose.Schema({
     timestamp: { type: Date, default: Date.now },
 });
 
-module.exports = mongoose.model('Generalmessages', generalmessageschema);
+module.exports = mongoose.model('generalmessages', generalmessageschema);

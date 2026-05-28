@@ -1,4 +1,4 @@
-const GeneralMessage = require('../models/generalMessages');
+const GeneralMessage = require('../models/generalmessages');
 const User = require('../models/users');
 
 // 1. SEND MESSAGE (Alumni or Admin Only) - REST + Live Broadcast
