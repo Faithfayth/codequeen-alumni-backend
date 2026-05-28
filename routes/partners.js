@@ -13,9 +13,14 @@ const { isAuth, isAdmin, isAlumna, isPartner, isStudent } = require('../middlewa
 
 const router = express.Router();
 
-router.post('/createpartnerrofile',isAuth, isPartner,  createPartnerProfile);  //Only partner or admin
+router.post('/createpartnerprofile',isAuth, isPartner,  createPartnerProfile);  //Only partner or admin
 
-router.get('/getapprovedpartners', isAuth, isAlumna, isPartner, isStudent, getApprovedPartners); //partners, alumni, students, admin
+router.get('/getapprovedpartners', isAuth, (req, res, next) => {
+    if (req.user.isAdmin || req.user.role === 'alumna' || req.user.role === 'partner') {
+        return next();
+    }
+    return res.status(403).json({ message: "Access Denied: Valid Alumna or Partner or Admin access level credentials required." });
+}, getApprovedPartners); //partners, alumni, students, admin
 
 router.put('/updatepartnerprofile/:id', isAuth, isPartner, updatePartnerProfile);  //Partner or Admin
 

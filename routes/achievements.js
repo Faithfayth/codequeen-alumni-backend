@@ -12,7 +12,7 @@ const router = express.Router();
 
 router.post('/createachievement',isAuth, isAdmin, createAchievement );
 
-router.get('/getallachievements',isAuth, isAdmin, getAllAchievements );
+router.get('/getallachievements',isAuth, isAlumna, getAllAchievements );
 
 router.put('/updateachievement/:id', isAuth, isAdmin, updateAchievement);
 
