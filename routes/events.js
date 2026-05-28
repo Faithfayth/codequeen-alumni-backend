@@ -15,9 +15,19 @@ router.post('/createevent', isAuth, (req, res, next) => {
 
 router.put('/verifyevent/:id', isAuth,  isAdmin, verifyEvent);
 
-router.get('/getcurrentevents', isAuth, isAlumna, getCurrentEvents);
+router.get('/getcurrentevents', isAuth, (req, res, next) => {
+    if (req.user.isAdmin || req.user.role === 'alumna' || req.user.role === 'partner') {
+        return next();
+    }
+    return res.status(403).json({ message: "Access Denied: Valid Alumna or Partner access level credentials required." });
+}, getCurrentEvents);
 
-router.get('/getpastevents', isAuth, isAlumna, getPastEvents);
+router.get('/getpastevents', isAuth, (req, res, next) => {
+    if (req.user.isAdmin || req.user.role === 'alumna' || req.user.role === 'partner') {
+        return next();
+    }
+    return res.status(403).json({ message: "Access Denied: Valid Alumna or Partner access level credentials required." });
+}, getPastEvents);
 
 router.put('/registerforevent/:id', isAuth, isAlumna, registerForEvent);
 
