@@ -2,10 +2,10 @@
   "name": "codequeen-alumni-backend",
   "version": "1.0.0",
   "description": "This is the backend infrastructure for the codequeen sisterhood digital community, where alumni from codequeen gather to share everything the community has to offer. The project demonstrates error handling, exclusive access to specific roles for users etc.",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon index.js"
+    "dev": "nodemon server.js"
   },
   "repository": {
     "type": "git",

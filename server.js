@@ -85,7 +85,7 @@ app.use('/partners', partnersRoutes);
 app.use('/cohort', cohortRoutes);  
 app.use('/enrollments', enrollmentRoutes);
 app.use('/projects', projectsRoutes);
-app.use('/resources', resourceRoutes); // ⚡ Now Multer will cleanly parse the request file buffer!
+app.use('/resources', resourceRoutes); // Now Multer will cleanly parse the request file buffer!
 app.use('/elections', electionsRoutes);
 app.use('/achievements', achievementsRoutes);
 app.use('/gallery', galleryRoutes);
